@@ -107,53 +107,72 @@ FastAPI provides automatic, interactive API documentation:
 - `DELETE /api/cart/{cart_id}/clear` — Clear all items from cart
 - `DELETE /api/cart/{cart_id}` — Delete cart
 
-##  Design Decisions
+## Design Decisions
 
-1. **Async Architecture**
-   - Using FastAPI's async capabilities for better performance
-   - Async MongoDB driver (motor) for non-blocking database operations
+1. **Modular Architecture**
+   - Repository pattern for data access with a generic base repository
+   - Centralized error handling with custom exception classes
+   - Dependency injection for flexible component integration
+   - Middleware-based request processing pipeline
 
-2. **Database Choice**
-   - MongoDB selected for its flexibility with product schemas
-   - Document-based storage for easy product variations
-   - Built-in support for JSON-like documents
+2. **Async Architecture**
+   - FastAPI's async capabilities for non-blocking request handling
+   - Motor async MongoDB driver for efficient database operations
+   - Connection pooling for optimized resource utilization
+   - Asynchronous context managers for resource lifecycle management
 
-3. **Security**
+3. **Database Strategy**
+   - MongoDB selected for schema flexibility with product variations
+   - Strategic indexes for optimized query performance
+   - Repository pattern abstracts database operations
+   - Document-based model for natural JSON representation
+
+4. **Robust Error Handling**
+   - Centralized error system with typed exceptions
+   - Consistent error response format
+   - Proper HTTP status codes for different error scenarios
+   - Detailed validation error reporting
+
+5. **Security & Code Quality**
    - Password hashing with bcrypt
-   - Environment variables for sensitive data
-   - Input validation using Pydantic models
+   - Environment-based configuration management
+   - Input validation via Pydantic models
+   - Type annotations throughout for better IDE support and runtime safety
+   - Comprehensive logging with request ID tracking
 
-4. **API Design**
-   - RESTful principles
-   - Clear resource-based endpoints
-   - Consistent error handling
-   - Clear separation of concerns
-
-##  Scaling for High Traffic
+## Scaling for High Traffic
 
 1. **Horizontal Scaling**
-   - Deploy multiple instances behind a load balancer
-   - Use containerization (Docker) for consistent environments
-   - Implement Kubernetes for orchestration
+   - Stateless application design enables multiple instances behind a load balancer
+   - Containerization (Docker) for environment consistency and easy deployment
+   - Kubernetes orchestration for automated scaling and self-healing
+   - Configurable connection pools to manage resources efficiently
 
-2. **Database Scaling**
-   - MongoDB sharding for horizontal scaling
-   - Read replicas for read-heavy operations
-   - Implement caching layer (Redis) for frequently accessed data
+2. **Database Optimization**
+   - Strategic MongoDB indexes implemented on frequently queried fields
+   - Database sharding capability for horizontal scaling
+   - Read replicas for read-heavy workloads
+   - Connection pooling configured for optimal performance
 
-3. **Performance Optimization**
-   - Implement API rate limiting
-   - Use connection pooling for database connections
-   - Implement caching strategies
-   - Optimize database indexes
+3. **Caching & Performance**
+   - Ready for Redis integration for caching frequent queries
+   - Efficient database query patterns through repositories
+   - Pagination implemented for large data sets
+   - Asynchronous I/O to maximize throughput
 
-4. **High Availability**
-   - Multi-region deployment
-   - Database replication
-   - Implement circuit breakers
-   - Use message queues for async operations
+4. **Monitoring & Resilience**
+   - Structured logging with request tracking
+   - Request timing for performance monitoring
+   - Database connection retry mechanism
+   - Graceful error handling and reporting
 
-##  Project Structure
+5. **Future Enhancements**
+   - API rate limiting framework in place
+   - Ready for message queue integration for async processing
+   - Prepared for implementing circuit breakers for service resilience
+   - Structured for multi-region deployment
+
+## 📁 Project Structure
 
 ```
 app/
@@ -163,6 +182,9 @@ app/
 │   └── cart/       # Cart-related endpoints
 ├── core/           # Configuration, security, and dependencies
 │   ├── config.py   # Configuration settings
+│   ├── constants.py # Application constants
+│   ├── errors.py   # Error handling system
+│   ├── logging.py  # Logging configuration
 │   └──security.py  # Security utilities
 │   
 ├── models/         # Database models
