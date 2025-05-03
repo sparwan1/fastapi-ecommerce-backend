@@ -157,28 +157,18 @@ FastAPI provides automatic, interactive API documentation:
 
 ```
 app/
-├── api/            # API routes
+├── api/            # Routes handle HTTP requests and responses
 │   ├── users/      # User-related endpoints
 │   ├── products/   # Product-related endpoints
 │   └── cart/       # Cart-related endpoints
-├── core/           # Core functionality
+├── core/           # Configuration, security, and dependencies
 │   ├── config.py   # Configuration settings
-│   ├── security.py # Security utilities
-│   └── deps.py     # Dependency injection
+│   └──security.py  # Security utilities
+│   
 ├── models/         # Database models
-├── schemas/        # Pydantic schemas
-└── db/             # Database configuration
+│   ├── mongodb.py  # MongoDB connection management
+│   └── repositories/ # Repository pattern implementations
+├── schemas/        # Pydantic models for data validation
+└── db/             # MongoDB integration with async support via Motor
 tests/              # Test files
 ```
-
-## 🧪 Testing
-
-Run tests using pytest:
-```bash
-pytest
-```
-
-For coverage report:
-```bash
-pytest --cov=app tests/
-``` 
