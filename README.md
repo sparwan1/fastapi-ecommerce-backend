@@ -9,12 +9,19 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
 ---
 
 ## Table of Contents
+- [Small Working Demo](#-working-demo)
 - [Setup Instructions](#-setup-instructions)
 - [API Documentation](#-api-documentation)
 - [Design Decisions](#-design-decisions)
 - [Scaling Considerations](#-scaling-considerations)
 - [Project Structure](#-project-structure)
 - [Testing](#-testing)
+
+##  Working Demo
+
+
+https://github.com/user-attachments/assets/d047a04a-1db1-45e4-b879-cdc4ec592d98
+
 
 ##  Setup Instructions
 
