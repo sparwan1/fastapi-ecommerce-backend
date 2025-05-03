@@ -4,11 +4,22 @@ from app.api.users.routes import router as users_router
 from app.api.products.routes import router as products_router
 from app.api.cart.routes import router as cart_router
 from app.db.mongodb import mongodb
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: connect to db and create index
+    await mongodb.connect_to_database()
+    await mongodb.db.carts.create_index("user_id", unique=True)
+    yield
+    # Shutdown: close connection
+    await mongodb.close_database_connection()
 
 app = FastAPI(
     title="E-commerce API",
     description="A RESTful API for e-commerce application",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Configure CORS
@@ -24,16 +35,6 @@ app.add_middleware(
 app.include_router(users_router, prefix="/api/users", tags=["users"])
 app.include_router(products_router, prefix="/api/products", tags=["products"])
 app.include_router(cart_router, prefix="/api/cart", tags=["cart"])
-
-@app.on_event("startup")
-async def startup_db_client():
-    await mongodb.connect_to_database()
-    # Ensure unique index on user_id in carts
-    await mongodb.db.carts.create_index("user_id", unique=True)
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    await mongodb.close_database_connection()
 
 @app.get("/")
 async def root():
