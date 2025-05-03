@@ -8,7 +8,7 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 - [Setup Instructions](#-setup-instructions)
 - [API Documentation](#-api-documentation)
 - [Design Decisions](#-design-decisions)
@@ -16,7 +16,7 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
 - [Project Structure](#-project-structure)
 - [Testing](#-testing)
 
-## 🚀 Setup Instructions
+##  Setup Instructions
 
 ### Prerequisites
 
@@ -51,7 +51,9 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
 
 4. **Set up MongoDB**
    - Install MongoDB Community Edition:
-     - [macOS Installation](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/)
+     - [macOS Installation](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/): `brew tap mongodb/brew`, `brew update`, 
+     
+        `brew install mongodb-community@8.0`
      - [Windows Installation](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/)
      - [Linux Installation](https://www.mongodb.com/docs/manual/administration/install-on-linux/)
    - Start the MongoDB server:
@@ -59,7 +61,7 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
      - Windows: MongoDB should run as a service automatically
      - Linux: `sudo systemctl start mongod`
 
-5. **Create a `.env` file in the root directory:**
+5. **Create a `.env` file in the root directory: (I have provided my .env file if needed for use)**
    ```
    MONGODB_URL=mongodb://localhost:27017
    MONGODB_DB_NAME=ecommerce_db
@@ -72,7 +74,7 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
    ```
    The API will be available at `http://localhost:8000`
 
-## 📝 API Documentation
+##  API Documentation
 
 FastAPI provides automatic, interactive API documentation:
 
@@ -81,7 +83,7 @@ FastAPI provides automatic, interactive API documentation:
 
 ### Main Endpoints
 
-#### 👤 Users (`/api/users`)
+####  Users (`/api/users`)
 - `POST /api/users/` — Create a new user
 - `GET /api/users/` — List users (with pagination)
 - `GET /api/users/{user_id}` — Get user by ID
@@ -89,7 +91,7 @@ FastAPI provides automatic, interactive API documentation:
 - `PATCH /api/users/{user_id}` — Update user (partial)
 - `DELETE /api/users/{user_id}` — Delete user
 
-#### 🛍️ Products (`/api/products`)
+####  Products (`/api/products`)
 - `POST /api/products/` — Create a new product
 - `GET /api/products/` — List products (with filters for category, price, pagination)
 - `GET /api/products/{product_id}` — Get product by ID
@@ -97,7 +99,7 @@ FastAPI provides automatic, interactive API documentation:
 - `PATCH /api/products/{product_id}` — Update product (partial)
 - `DELETE /api/products/{product_id}` — Delete product
 
-#### 🛒 Cart (`/api/cart`)
+####  Cart (`/api/cart`)
 - `POST /api/cart/` — Create a cart for a user
 - `GET /api/cart/{cart_id}` — Get cart by ID
 - `POST /api/cart/{cart_id}/items` — Add item to cart
@@ -105,7 +107,7 @@ FastAPI provides automatic, interactive API documentation:
 - `DELETE /api/cart/{cart_id}/clear` — Clear all items from cart
 - `DELETE /api/cart/{cart_id}` — Delete cart
 
-## 🤔 Design Decisions
+##  Design Decisions
 
 1. **Async Architecture**
    - Using FastAPI's async capabilities for better performance
@@ -127,7 +129,7 @@ FastAPI provides automatic, interactive API documentation:
    - Consistent error handling
    - Clear separation of concerns
 
-## 📈 Scaling for High Traffic
+##  Scaling for High Traffic
 
 1. **Horizontal Scaling**
    - Deploy multiple instances behind a load balancer
@@ -151,7 +153,7 @@ FastAPI provides automatic, interactive API documentation:
    - Implement circuit breakers
    - Use message queues for async operations
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 app/
