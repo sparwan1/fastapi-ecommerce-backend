@@ -3,6 +3,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109.2-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4.6.3-47A248?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-24.0.5-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 
 A RESTful API for an e-commerce application built with FastAPI, async Python, and MongoDB.
 
@@ -10,28 +11,64 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
 
 ## Table of Contents
 - [Setup Instructions](#-setup-instructions)
+  - [Docker Setup](#docker-setup)
+  - [Local Setup](#local-setup)
 - [API Documentation](#-api-documentation)
 - [Design Decisions](#-design-decisions)
 - [Scaling Considerations](#-scaling-considerations)
 - [Project Structure](#-project-structure)
 - [Testing](#-testing)
 
-##  Setup Instructions
+## Setup Instructions
 
-### Prerequisites
+### Docker Setup (Recommended)
 
-- Python 3.11+
-- MongoDB (local or remote)
-- pip (Python package manager)
-- Git
+1. **Prerequisites**
+   - Docker
+   - Docker Compose
 
-### Steps
-
-1. **Clone the repository**
+2. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd ecommerce-backend
    ```
+
+3. **Create a `.env` file in the root directory**
+   ```env
+   ENVIRONMENT=development
+   DEBUG=true
+   MONGODB_URL=mongodb://mongodb:27017
+   MONGODB_DB_NAME=ecommerce_db
+   JWT_SECRET_KEY=your-secret-key-here
+   JWT_ALGORITHM=HS256
+   CORS_ORIGINS=["http://localhost:3000","http://localhost:8000"]
+   LOG_LEVEL=INFO
+   ```
+
+4. **Build and run with Docker Compose**
+   ```bash
+   # Build and start containers
+   docker compose up --build
+
+   # To run in detached mode
+   docker compose up --build -d
+
+   # To view logs
+   docker compose logs -f
+
+   # To stop containers
+   docker compose down
+   ```
+
+   The API will be available at `http://localhost:8000`
+
+### Local Setup
+
+1. **Prerequisites**
+   - Python 3.11+
+   - MongoDB (local or remote)
+   - pip (Python package manager)
+   - Git
 
 2. **Create and activate a virtual environment**
    ```bash
@@ -61,11 +98,16 @@ A RESTful API for an e-commerce application built with FastAPI, async Python, an
      - Windows: MongoDB should run as a service automatically
      - Linux: `sudo systemctl start mongod`
 
-5. **Create a `.env` file in the root directory: (I have provided my .env file if needed for use)**
-   ```
+5. **Create a `.env` file in the root directory**
+   ```env
+   ENVIRONMENT=development
+   DEBUG=true
    MONGODB_URL=mongodb://localhost:27017
    MONGODB_DB_NAME=ecommerce_db
-   SECRET_KEY=your-secret-key-here
+   JWT_SECRET_KEY=your-secret-key-here
+   JWT_ALGORITHM=HS256
+   CORS_ORIGINS=["http://localhost:3000","http://localhost:8000"]
+   LOG_LEVEL=INFO
    ```
 
 6. **Run the application**
@@ -185,12 +227,21 @@ app/
 │   ├── constants.py # Application constants
 │   ├── errors.py   # Error handling system
 │   ├── logging.py  # Logging configuration
-│   └──security.py  # Security utilities
-│   
+│   └── security.py # Security utilities
 ├── models/         # Database models
-│   ├── mongodb.py  # MongoDB connection management
+│   ├── base.py     # Base model definitions
 │   └── repositories/ # Repository pattern implementations
 ├── schemas/        # Pydantic models for data validation
 └── db/             # MongoDB integration with async support via Motor
-tests/              # Test files
+    └── mongodb.py  # MongoDB connection management
+
+# Docker-related files
+├── Dockerfile      # Container definition for the FastAPI application
+├── docker-compose.yml # Multi-container Docker setup
+└── .dockerignore   # Files to exclude from Docker build context
+
+# Configuration files
+├── .env           # Environment variables (not in version control)
+├── requirements.txt # Python dependencies
+└── README.md      # Project documentation
 ```

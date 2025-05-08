@@ -1,6 +1,6 @@
 """
 Logging configuration and utilities for the application.
-This module provides a consistent way to log events across the application.
+This module provides a consistent way to log events across the application with request tracking.
 """
 
 import logging
@@ -11,57 +11,53 @@ from fastapi import Request
 import uuid
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
+from app.core.config import settings
 
-# Create logger
+# Create logger instance for the application
 logger = logging.getLogger("app")
 
-# Create filter to add request_id when missing
 class RequestIDFilter(logging.Filter):
-    """Filter that ensures every log record has a request_id field"""
+    """
+    Custom logging filter that ensures every log record has a request_id field.
+    This helps in tracking requests across the application.
+    """
     
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
+        """
+        Add request_id to log record if not present.
+        
+        Args:
+            record: The log record to process
+            
+        Returns:
+            bool: True to allow the record to be logged
+        """
         if not hasattr(record, 'request_id'):
             record.request_id = 'system'
         return True
 
-def configure_logging(log_level: str = "INFO") -> None:
+def configure_logging() -> None:
     """
-    Configure the logging system with appropriate handlers and formatters.
-    
-    Args:
-        log_level: The logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    Configure the application's logging system.
+    Sets up the logging format, level, and handlers.
     """
-    # Convert string log level to logging constant
-    numeric_level = getattr(logging, log_level.upper(), logging.INFO)
+    # Get log level from settings
+    log_level = getattr(logging, settings.LOG_LEVEL.upper())
     
-    # Configure root logger
-    logger.setLevel(numeric_level)
+    # Define a structured log format
+    log_format = '%(asctime)s - %(name)s - %(levelname)s - [%(request_id)s] - %(message)s'
     
-    # Create console handler
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(numeric_level)
-    
-    # Add request ID filter to ensure the field exists
-    request_filter = RequestIDFilter()
-    handler.addFilter(request_filter)
-    
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - [%(request_id)s] %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+    # Configure basic logging
+    logging.basicConfig(
+        level=log_level,
+        format=log_format,
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
     )
     
-    # Add formatter to handler
-    handler.setFormatter(formatter)
-    
-    # Add handler to logger
-    logger.addHandler(handler)
-    
-    # Avoid duplicate log messages
-    logger.propagate = False
-    
-    # For system logs outside of requests
-    logger.info("Logging configured with level %s", log_level, extra={"request_id": "system"})
+    # Add request ID filter to the logger
+    logger.addFilter(RequestIDFilter())
 
 class RequestLogMiddleware(BaseHTTPMiddleware):
     """
@@ -70,7 +66,12 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
     """
     
     def __init__(self, app: ASGIApp):
-        """Initialize middleware with the ASGI app."""
+        """
+        Initialize middleware with the ASGI app.
+        
+        Args:
+            app: The ASGI application
+        """
         super().__init__(app)
     
     async def dispatch(self, request: Request, call_next: Callable) -> Any:
@@ -83,8 +84,11 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
             
         Returns:
             The response from the next middleware or route handler
+            
+        Raises:
+            Exception: If the request processing fails
         """
-        # Generate request ID
+        # Generate unique request ID
         request_id = str(uuid.uuid4())
         
         # Add request ID to request state
@@ -93,7 +97,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
         # Create a log context with request ID
         context = {"request_id": request_id}
         
-        # Log request
+        # Log request details
         logger.info(
             f"Request: {request.method} {request.url.path}",
             extra=context
@@ -106,28 +110,29 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
             # Process the request
             response = await call_next(request)
             
-            # Calculate duration
+            # Calculate request duration
             duration = time.time() - start_time
             
-            # Log response
+            # Log response details
             logger.info(
                 f"Response: {response.status_code} completed in {duration:.3f}s",
                 extra=context
             )
             
-            # Add request ID to response headers
+            # Add request ID to response headers for client tracking
             response.headers["X-Request-ID"] = request_id
             
             return response
         except Exception as e:
+            # Log any errors that occur during request processing
             logger.error(f"Request failed: {str(e)}", extra=context)
             raise
 
-def get_logger():
+def get_logger() -> logging.Logger:
     """
-    Get the configured logger.
+    Get the configured logger instance.
     
     Returns:
-        The configured logger instance
+        logging.Logger: The configured logger instance
     """
     return logger 

@@ -1,0 +1,61 @@
+# Docker Compose file for the E-commerce Backend
+# Defines the services, networks, and volumes needed for the application
+
+version: '3.8'
+
+services:
+  # FastAPI application service
+  app:
+    build: 
+      context: .  # Build context is the current directory
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"  # Map container port 8000 to host port 8000
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017  # MongoDB connection URL
+      - MONGODB_DB_NAME=ecommerce_db  # Database name
+      - ENVIRONMENT=development  # Application environment
+      - DEBUG=true  # Enable debug mode
+      - LOG_LEVEL=INFO  # Logging level
+    env_file:
+      - .env  # Load environment variables from .env file
+    depends_on:
+      - mongodb  # Ensure MongoDB starts before the app
+    volumes:
+      - .:/app  # Mount current directory for development
+    networks:
+      - ecommerce-network
+    restart: unless-stopped  # Restart policy
+    healthcheck:  # Health check configuration
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB service
+  mongodb:
+    image: mongo:latest  # Use latest MongoDB image
+    ports:
+      - "27017:27017"  # Map MongoDB port
+    volumes:
+      - mongodb_data:/data/db  # Persist database data
+    networks:
+      - ecommerce-network
+    restart: unless-stopped  # Restart policy
+    command: mongod --bind_ip_all  # Allow connections from any IP
+    healthcheck:  # Health check configuration
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+# Define networks
+networks:
+  ecommerce-network:
+    driver: bridge  # Use bridge network for container communication
+
+# Define volumes
+volumes:
+  mongodb_data:  # Named volume for MongoDB data persistence 
